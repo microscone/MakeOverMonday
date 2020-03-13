@@ -1,0 +1,61 @@
+---
+title: "2020 W9 Makeover Monday"
+author: "Shane Cone"
+date: "3/13/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+
+#Data Prep
+W9 <- read_csv("2020Week9MM.csv")
+str(W9)
+grades <- W9$Grade
+W9$Grade <- factor(W9$Grade, levels = grades)
+W9 <- W9 %>% 
+  mutate("Defecit" = `Hours Needed` - `Hours Averaged`)
+
+levels(W9$Grade)
+
+W9_longer <- pivot_longer(W9, -Grade, names_to = "Measure", values_to = "Hours")
+W9_longer$Measure <- factor(W9_longer$Measure, levels = c("Hours Needed", "Hours Averaged", "Defecit"))
+```
+
+```{r, fig.width=10, fig.height=4}
+
+# ggplot(W9, aes(x = Grade)) +
+#   geom_line(aes(y = `Hours Needed`, group = 1, color = "blue")) +
+#   geom_line(aes(y = `Hours Averaged`, group = 1, color = "red")) +
+#   scale_y_continuous(limits = c(0, 10), expand = c(0, 0)) +
+#   scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
+#   theme_classic()
+
+ggplot(W9_longer %>% 
+         filter(Measure != "Defecit")) +
+  geom_col(aes(x = Grade, y = Hours, fill = Measure), position = "dodge")+
+  scale_y_continuous(limits = c(0, 10), expand = c(0, 0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
+  theme_classic() +
+  ggtitle("Student Sleep Defecit")
+
+ggplot(W9_longer %>% 
+         filter(Measure != "Defecit"), 
+       aes(x = Grade, y = Hours, color = Measure, group = Measure)) +
+  geom_line(size = 1.5)+
+  scale_y_continuous(limits = c(0, 10), expand = c(0, 0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
+  theme_classic() +
+  ggtitle("Student Sleep Defecit")
+
+ggplot(W9_longer, aes(x = Grade, y = Hours, color = Measure, group = Measure)) +
+  geom_line(size = 1.5)+
+  scale_y_continuous(limits = c(0, 10), expand = c(0, 0)) +
+  scale_x_discrete(guide = guide_axis(check.overlap = TRUE)) +
+  theme_classic() +
+  ggtitle("Student Sleep Defecit")
+
+```
+
+The line graphs above are a nice option for how to visualize these two values, for each grade.
+
